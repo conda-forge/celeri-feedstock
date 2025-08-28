@@ -47,10 +47,14 @@ requirements:
     - loguru
     - matplotlib-base
     - meshio
+    - numba
     - numpy
+    - nutpie
     - pandas
     - papermill
+    - pyarrow
     - pydantic
+    - pymc
     - pyproj
     - pytest
     - scipy
