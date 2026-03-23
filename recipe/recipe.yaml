@@ -90,13 +90,10 @@ tests:
         - ${{ python_check_max }}.*
       imports:
         - celeri
-    # TODO: switch to true once the note below is resolved.
-      pip_check: false
+      pip_check: true
   - requirements:
       run:
         - python ${{ python_min }}.*
-      # TODO: remove the following once the note below is resolved.
-        - pip
     script:
       - celeri-solve --help
       - celeri-snap-segments --help
@@ -106,13 +103,6 @@ tests:
       - celeri-forward --help
       - celeri-create-grid-station --help
       - python -c "from importlib.metadata import version; v = version('celeri'); print(v); assert v == '${{ version }}'"
-    # TODO: See the previous two TODOs and remove the following once this PR is merged:
-    # <https://github.com/conda-forge/gmsh-feedstock/pull/103>
-    # NOTE: These are all workarounds for the failure of pip check due to:
-    # <https://github.com/conda-forge/gmsh-feedstock/issues/97>
-      - pip install gmsh
-    # TODO: Remove this in favor of pip_check: true above.
-      - pip check
 
 about:
   summary: Next generation earthquake cycle kinematics
