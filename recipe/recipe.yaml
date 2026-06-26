@@ -1,5 +1,5 @@
 context:
-  version: "0.0.4"
+  version: "0.0.5"
   python_min: "3.11"
   python_check_max: "3.13"
 
@@ -9,7 +9,7 @@ package:
 
 source:
   - url: https://pypi.org/packages/source/c/celeri/celeri-${{ version }}.tar.gz
-    sha256: 4da37c89eb6345c8c533f2a565e6970d852bf02b6f40704722df0907439da249
+    sha256: ae3ef2247fc7c84b6a47b8b820cbab3882dac94b97b2b8b832f94189ea27d646
 
 build:
   number: 0
