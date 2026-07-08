@@ -5,3 +5,8 @@ github:
 conda_build:
   error_overlinking: true
 conda_forge_output_validation: true
+# Build one noarch variant per platform so that jax can be a unix-only
+# dependency (no jaxlib on win-64); see the run requirements in the recipe.
+noarch_platforms:
+  - linux_64
+  - win_64

@@ -1,7 +1,7 @@
 context:
-  version: "0.0.4"
-  python_min: "3.11"
-  python_check_max: "3.13"
+  version: "0.0.6"
+  python_min: "3.13"
+  python_check_max: "3.14"
 
 package:
   name: celeri
@@ -9,7 +9,7 @@ package:
 
 source:
   - url: https://pypi.org/packages/source/c/celeri/celeri-${{ version }}.tar.gz
-    sha256: 4da37c89eb6345c8c533f2a565e6970d852bf02b6f40704722df0907439da249
+    sha256: 8822fa5dfc025234f2a0ae688f9cfeaaded8ccdf5a7bb187ebd207d87dbe58c9
 
 build:
   number: 0
@@ -17,9 +17,16 @@ build:
   script: ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
   python:
     entry_points:
+      - celeri-apply-mesh-params = celeri.scripts.apply_mesh_params:main
+      - celeri-check-fix-segments = celeri.scripts.celeri_check_fix_segments:main
+      - celeri-create-bel-mesh = celeri.scripts.create_bel_mesh:main
       - celeri-create-grid-station = celeri.scripts.create_grid_station:main
+      - celeri-create-mesh-params-template = celeri.scripts.create_mesh_params_template:main
       - celeri-forward = celeri.scripts.celeri_forward:main
       - celeri-msh2stl = celeri.scripts.msh2stl:main
+      - celeri-remove-vels-segment-collocated = celeri.scripts.celeri_remove_vels_segment_collocated:main
+      - celeri-report-segment-priors = celeri.scripts.celeri_report_segment_priors:main
+      - celeri-reweight-stations = celeri.scripts.celeri_reweight_stations:main
       - celeri-segmesh = celeri.scripts.segmesh:main
       - celeri-snap-segments = celeri.scripts.snap_segments:main
       - celeri-solve = celeri.scripts.celeri_solve:main
@@ -34,7 +41,7 @@ requirements:
     - pip
   run:
     - python >=${{ python_min }}
-    - addict
+    - arviz >=0.18
     - cartopy
     - colorcet
     - cutde >=25.7.24
@@ -44,25 +51,42 @@ requirements:
     - h5py
     - ipykernel
     - ipython
+    # Upstream requires jax via the environment marker
+    #   platform_system == 'Linux' or (platform_system == 'Darwin' and platform_machine == 'arm64')
+    # i.e. wherever jaxlib wheels exist on PyPI. On conda-forge, jaxlib is
+    # available on linux-* and osx-* (including osx-64) but not on win-64,
+    # so we require jax on unix and omit it on win. This is why we build
+    # per-platform noarch variants (see noarch_platforms in conda-forge.yml).
+    - if: unix
+      then: jax
     - loguru
     - matplotlib-base
     - meshio
     - numba
     - numpy
-    - nutpie
+    - nutpie >=0.15.2
     - pandas
     - papermill
     - pyarrow
     - pydantic
-    - pymc
+    - pymc >=5.27,<7
     - pyproj
+    - pytensor
     - pytest
+    - rich
+    - scikit-learn
     - scipy
     - shapely
     - spherical-geometry
     - tqdm
     - xarray
     - zarr
+  # Keep the package noarch while having per-platform dependencies,
+  # following the pattern of the poetry feedstock.
+    - if: unix
+      then: __unix
+    - if: win
+      then: __win
 
   # occt is a dependency of gmsh, which is a dependency of python-gmsh.
   # There are two variants of occt build strings: novtk_* and all_*.
@@ -95,13 +119,23 @@ tests:
       run:
         - python ${{ python_min }}.*
     script:
-      - celeri-solve --help
-      - celeri-snap-segments --help
-      - celeri-segmesh --help
-      - celeri-msh2stl --help
-      - celeri-stl2msh --help
-      - celeri-forward --help
+      - celeri-apply-mesh-params --help
+      - celeri-check-fix-segments --help
+      - celeri-create-bel-mesh --help
       - celeri-create-grid-station --help
+      - celeri-create-mesh-params-template --help
+      - celeri-forward --help
+      - celeri-msh2stl --help
+      # celeri-remove-vels-segment-collocated hand-parses sys.argv and exits
+      # with status 1 on --help, so just check that its module imports.
+      # Restore the --help check once upstream migrates it to argparse.
+      - python -c "from celeri.scripts.celeri_remove_vels_segment_collocated import main"
+      - celeri-report-segment-priors --help
+      - celeri-reweight-stations --help
+      - celeri-segmesh --help
+      - celeri-snap-segments --help
+      - celeri-solve --help
+      - celeri-stl2msh --help
       - python -c "from importlib.metadata import version; v = version('celeri'); print(v); assert v == '${{ version }}'"
 
 about:
