@@ -126,7 +126,10 @@ tests:
       - celeri-create-mesh-params-template --help
       - celeri-forward --help
       - celeri-msh2stl --help
-      - celeri-remove-vels-segment-collocated --help
+      # celeri-remove-vels-segment-collocated hand-parses sys.argv and exits
+      # with status 1 on --help, so just check that its module imports.
+      # Restore the --help check once upstream migrates it to argparse.
+      - python -c "from celeri.scripts.celeri_remove_vels_segment_collocated import main"
       - celeri-report-segment-priors --help
       - celeri-reweight-stations --help
       - celeri-segmesh --help
